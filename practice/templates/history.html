@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대화 기록</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .conversation-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            padding: 12px 18px;
+            border-radius: 10px;
+            max-width: 70%;
+            margin: 5px 0;
+            font-size: 1rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background-color: #e0f7fa;
+            align-self: flex-start;
+            color: #00796b;
+            border-radius: 20px 20px 5px 20px;
+        }
+
+        .bot {
+            background-color: #ffe082;
+            align-self: flex-end;
+            color: #f57f17;
+            border-radius: 20px 20px 20px 5px;
+        }
+
+        .message p {
+            margin: 0;
+        }
+
+        .message span {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* 스크롤바 스타일 */
+        .conversation-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .conversation-container::-webkit-scrollbar-thumb {
+            background-color: #80cbc4;
+            border-radius: 4px;
+        }
+
+        .conversation-container::-webkit-scrollbar-track {
+            background-color: #f0f4f8;
+        }
+    </style>
+</head>
+<body>
+    <div class="conversation-container" id="conversation">
+        <!-- 대화 내용이 여기에 표시됩니다. -->
+    </div>
+
+    <script>
+        // 페이지 로드 시 대화 기록을 불러오는 함수
+        async function loadConversationHistory() {
+            const response = await fetch("/history");
+            const data = await response.json();
+            
+            const conversationDiv = document.getElementById('conversation');
+            conversationDiv.innerHTML = ''; // 기존 대화 내용 지우기
+
+            // 대화 내용 추가
+            data.conversation_history.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                
+                // 메시지가 'User'인 경우
+                if (message.startsWith("User")) {
+                    messageDiv.classList.add('user');
+                    messageDiv.innerHTML = `<span>사용자:</span> ${message.replace('User: ', '')}`; // 사용자 메시지
+                }
+                // 메시지가 'Bot'인 경우
+                else if (message.startsWith("Bot")) {
+                    messageDiv.classList.add('bot');
+                    messageDiv.innerHTML = `<span>봇:</span> ${message.replace('Bot: ', '')}`; // 봇 메시지
+                }
+                
+                conversationDiv.appendChild(messageDiv);
+            });
+
+            // 자동 스크롤
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
+
+        // 페이지 로드 시 대화 내용 불러오기
+        window.onload = loadConversationHistory;
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에스카노르 챗봇</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; }
+        #chat-container { width: 60%; max-width: 600px; margin-top: 20px; }
+        #chat-box { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; }
+        .message { margin: 5px 0; padding: 8px; border-radius: 5px; }
+        .user { background-color: #d4f1f4; text-align: right; }
+        .bot { background-color: #f1d4d4; text-align: left; }
+        #input-container { display: flex; margin-top: 10px; }
+        #user-input { flex: 1; padding: 8px; font-size: 16px; }
+        #send-btn { padding: 8px 16px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>에스카노르 챗봇</h1>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="질문을 입력하세요" />
+            <button id="send-btn">전송</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("send-btn").addEventListener("click", sendMessage);
+        document.getElementById("user-input").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") sendMessage();
+        });
+
+        function sendMessage() {
+            const userInput = document.getElementById("user-input");
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            displayMessage(message, "user");
+            userInput.value = "";
+
+            fetch("/chat1", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => displayMessage(data.bot_response, "bot"))
+            .catch(error => console.error("Error:", error));
+        }
+
+        function displayMessage(message, sender) {
+            const chatBox = document.getElementById("chat-box");
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message", sender);
+            messageElement.innerText = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
