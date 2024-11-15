@@ -65,8 +65,7 @@ session_id = "sql_history"
 chat_history = SQLChatMessageHistory(session_id=session_id, connection=engine)
 
 # 웹 페이지 로더 설정
-loader1 = WebBaseLoader(web_path=["https://namu.wiki/w/%EC%97%90%EC%8A%A4%EC%B9%B4%EB%85%B8%EB%A5%B0","https://namu.wiki/w/%EC%97%90%EC%8A%A4%EC%B9%B4%EB%85%B8%EB%A5%B4/%EC%9E%91%EC%A4%91%20%ED%96%89%EC%A0%81",
-    "https://vclock.kr/time/%EC%84%9C%EC%9A%B8/"] )
+loader1 = WebBaseLoader(web_path=["https://namu.wiki/w/%EC%97%90%EC%8A%A4%EC%B9%B4%EB%85%B8%EB%A5%B0"])
 loader2 = PyMuPDFLoader("data/대사집.pdf")
 docs = loader1.load() + loader2.load()  # 두 개의 문서 로딩 후 합침
 
@@ -141,7 +140,8 @@ def chat():
 
     # 채팅 기록 불러오기
     chat_history_messages = chat_history.get_messages()  
-    context = "\n".join([f"{msg.role}: {msg.content}" for msg in chat_history_messages]) 
+    context = "\n".join([f"{msg.role}: {msg.content}" for msg in chat_history_messages if msg.content.strip()])
+
 
     # 질문과 컨텍스트 결합
     question = user_message
