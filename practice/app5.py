@@ -88,6 +88,7 @@ vectorstore = FAISS.from_documents(documents=splits, embedding=embedding)
 retriever = vectorstore.as_retriever()
 
 
+
 # 현재 시간에 따라 성격 정의 (낮, 밤, 정오)
 KST = timezone(timedelta(hours=9))
 current_time = datetime.now(KST)
@@ -151,35 +152,51 @@ class ChatRequest(BaseModel):
 async def index(request: Request):
     return templates.TemplateResponse("chat.html", {"request": request})
 
-# 채팅 처리 요청 (question 처리 및 history 저장)
+# 채팅 처리
 @app.post("/chat")
-async def chat(request: Request, question: str):
-    # 이전 메시지들 불러오기
-    chat_messages = chat_history.get_messages()
-    history = "\n".join([f"{msg.role}: {msg.content}" for msg in chat_messages])
+async def chat(request: ChatRequest):
+    # 사용자 메시지 받기
+    user_message = request.message
 
-    # vectorstore에서 유사도 기반으로 문서 검색
-    similar_docs = retriever.get_relevant_documents(question)
-    context = "\n".join([doc.page_content for doc in similar_docs])
+    # 채팅 기록 불러오기
+    chat_history_messages = chat_history.get_messages()  
+    context = "\n".join([f"{msg.role}: {msg.content}" for msg in chat_history_messages]) 
 
-    # 프롬프트에 질문, history, context 추가하여 응답 생성
-    prompt_text = prompt.format(question=question, context=context, history=history)
-    answer = llm(prompt_text).text.strip()
+    # 벡터스토어에 추가하기 위해 사용자 메시지 벡터화
+    user_message_embedding = embedding.embed_documents([user_message])
+    vectorstore.add_texts([user_message], [user_message_embedding])
 
-    # 콘솔에 AI 응답 출력
-    print(f"AI answered: {answer.content}")
+    # 벡터 데이터 임베딩
+    user_message_embedding = embedding.embed_documents([user_message])
 
-    # 챗봇의 답변을 DB에 저장
-    chat_history.add_message(answer, "assistant")
+    # Document 객체 생성 시 metadata를 빈 딕셔너리로 추가
+    documents = [Document(page_content=user_message, metadata={})]
 
-    # 사용자 질문도 저장
-    chat_history.add_message(question, "user")
+    # 벡터스토어에 텍스트 추가
+    vectorstore.add_documents(documents, embeddings=[user_message_embedding])
 
-    return JSONResponse(content={"answer": answer})
+    # 유사도 검색을 통해 채팅 기록에서 관련된 메시지 검색
+    search_results = retriever.get_relevant_documents(user_message)
+    context += "\n" + "\n".join([doc.page_content for doc in search_results])
 
+    # 질문과 컨텍스트 결합
+    question = user_message
+    input_data = f"Question: {question}\nContext:\n{context}"
 
+    # 모델 응답 생성
+    bot_response = news_chain.invoke(input_data)
+
+    # 'Answer:' 제거
+    bot_response = bot_response.replace("Answer:", "").strip()  # 'Answer:' 텍스트를 제거하고 앞뒤 공백을 없앰
+
+    # 채팅 기록 저장
+    chat_history.add_message(user_message, "user")  # 위치 인수로 전달
+    chat_history.add_message(bot_response, "bot")   # 위치 인수로 전달
+
+    # 응답 반환
+    return JSONResponse(content={"user_message": user_message, "bot_response": bot_response})
 
 # 애플리케이션 실행
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)
