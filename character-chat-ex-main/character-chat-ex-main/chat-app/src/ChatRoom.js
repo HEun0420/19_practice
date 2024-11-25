@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { sendMessageToAI } from './API';
 import Message from './Message';
 import ciracino from '../src/11sd.PNG';
+import voiceButton from '../src/voice.png';
 
 const ChatRoom = () => {
   const [messages, setMessages] = useState([]);
@@ -48,8 +49,8 @@ const ChatRoom = () => {
       </div>
       {isDescriptionVisible && (
         <div className="chat-chara-description-chatRoom">
-          <p>치라치노의 몸은 특별한 기름으로 뒤엎여 있어 펀치 등 상대의 공격을 받아넘긴다. 
-            하얀 털은 몸에서 나오는 기름으로 코딩되어 적의 공격도 매끄럽게 피한다. 전신에서 배어 나오는 기름은 매우 부드럽다. 
+          <p>치라치노의 몸은 특별한 기름으로 뒤엎여 있어 펀치 등 상대의 공격을 받아넘긴다.
+            하얀 털은 몸에서 나오는 기름으로 코딩되어 적의 공격도 매끄럽게 피한다. 전신에서 배어 나오는 기름은 매우 부드럽다.
             거친 피부가 고민인 사람에게도 효과적이다. </p>
         </div>
       )}
@@ -66,7 +67,13 @@ const ChatRoom = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={sendMessage}>보내기</button>
+        <div className="voice-button-chatRoom">
+          <div className="back-voiceButton-chatRoom">
+            <img src={voiceButton} alt="Voice Button" />
+          </div>
+        </div>
+
       </div>
     </div>
   );

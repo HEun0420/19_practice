@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <div class="message bot-message">챗봇에 오신 걸 환영합니다! 대화를 시작해주세요.</div>
+        </div>
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요..." />
+        <button onclick="sendMessage()">보내기</button>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const userInput = document.getElementById("user-input");
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // 사용자의 메시지를 채팅박스에 표시
+            chatBox.innerHTML += `<div class="message user-message">${message}</div>`;
+            userInput.value = "";
+            
+            // 서버에 메시지 전송
+            const response = await fetch("/chat/user123", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message: message }),
+            });
+
+            // 응답을 받아서 채팅 박스에 표시
+            const data = await response.json();
+            chatBox.innerHTML += `<div class="message bot-message">${data.bot_response}</div>`;
+            
+            // 채팅박스를 자동으로 스크롤
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>

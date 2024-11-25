@@ -116,24 +116,27 @@
 
 .chat-input-chatRoom {
   display: flex;
+  align-items: center; /* 요소를 세로 가운데 정렬 */
   border-top: 1px solid #ddd;
   background-color: #ddd;
-  padding: 10px;
-  padding-top: 1vh;
-  padding-bottom: 1vh;
+  padding: 10px 1vh;
 }
 
 .chat-input-chatRoom input {
-  flex: 1;
+  flex: 1; 
   padding: 10px;
-  height: 3vh;
+  padding-left: 30px;
   border: 1px solid #ccc;
   border-radius: 50px;
-  margin-right: 50px;
+  height: 3vh;
+  margin-left: 50px;
+  width: auto; /* 가로 크기 조정 가능 */
 }
 
 .chat-input-chatRoom button {
-  width: 100px;
+  width: 11vh;
+  height: 5vh;
+  margin-left: 30px;  
   padding: 10px 15px;
   background-color: #ffb3b3;
   border: none;
@@ -146,3 +149,30 @@
 .chat-input-chatRoom button:hover {
   background-color: #f78787;
 }
+
+.voice-button-chatRoom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-voiceButton-chatRoom {
+  margin-left: 20px;
+  margin-right: 20px;
+  width: 5vh;
+  height: 5vh;
+  background-color: #f9f9f9;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-voiceButton-chatRoom img {
+  position: absolute;
+  width: 2.5vh;
+  height: 2.5vh;
+}
+
+

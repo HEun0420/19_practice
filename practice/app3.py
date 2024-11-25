@@ -168,7 +168,8 @@ def select_prompt_based_on_time():
         return night_prompt
 
 # LLM 모델 설정
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5  )
+
 
 # 뉴스 체인 설정
 def get_response_chain():
